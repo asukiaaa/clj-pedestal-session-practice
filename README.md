@@ -1,6 +1,11 @@
 # server
 
-FIXME: my new application.
+A server project to practice using buddy.
+
+References:
+https://github.com/pedestal/pedestal/tree/master/samples/hello-world
+https://clojurians-log.clojureverse.org/pedestal/2022-04-09
+https://github.com/pedestal/pedestal/pull/668/files
 
 ## Installation
 

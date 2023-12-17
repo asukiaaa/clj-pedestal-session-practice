@@ -1,10 +1,12 @@
 {:paths ["src" "resources"]
- :deps {org.clojure/clojure {:mvn/version "1.11.1"}}
+ :deps {org.clojure/clojure {:mvn/version "1.11.1"}
+        io.pedestal/pedestal.service {:mvn/version "0.5.10"}
+        io.pedestal/pedestal.jetty {:mvn/version "0.5.10"}}
  :aliases
  {:run-m {:main-opts ["-m" "clj-buddy-login-practice.server"]}
-  :run-x {:ns-default clj-buddy-login-practice.server
-          :exec-fn greet
-          :exec-args {:name "Clojure"}}
+  :run-dev {:ns-default clj-buddy-login-practice.server
+            :exec-fn run-dev
+            :exec-args {:name "Clojure"}}
   :build {:deps {io.github.clojure/tools.build {:mvn/version "0.9.4"}}
           :ns-default build}
   :test {:extra-paths ["test"]
