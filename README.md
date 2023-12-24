@@ -3,9 +3,34 @@
 A server project to practice using buddy.
 
 References:
+pedestal
 https://github.com/pedestal/pedestal/tree/master/samples/hello-world
 https://clojurians-log.clojureverse.org/pedestal/2022-04-09
 https://github.com/pedestal/pedestal/pull/668/files
+buddy-auth
+https://github.com/pedestal/pedestal/blob/master/samples/buddy-auth/src/buddy_auth/service.clj
+https://cljdoc.org/d/buddy/buddy-auth/3.0.1/doc/user-guide#signed-jwt
+https://github.com/funcool/buddy-auth/blob/master/examples/token/src/authexample/web.clj
+https://github.com/funcool/buddy-auth/blob/master/examples/jws/src/authexample/web.clj
+
+https://qiita.com/totakke/items/30c0582ad9cdd6a34cba
+
+```
+# curl -v -X POST -H "Content-Type: application/json" -d '{"username": "admin", "password": "admin-secret"}' http://localhost:8080/login
+TOKEN=$(curl -v -X POST -H "Content-Type: application/json" -d '{"username": "admin", "password": "admin-secret"}' http://localhost:8080/login)
+```
+```
+# TOKEN="eyJhbGciOiJIUzUxMiJ9.eyJ1c2VyIjoiYWRtaW4iLCJleHAiOjE3MDMzMTM4OTh9.trPy86Cw3UqYb5goU_f2NEXYX8r8hPyQHHGetwyKpYqy8AO-RUYu_d1nJ9EJs3G64oVRQ8xXtaJ_YAzLcp3auA"
+curl -v -X GET -H "Content-Type: application/json" -H "Authorization: Token $TOKEN" http://localhost:8080/
+```
+
+https://funcool.github.io/buddy-hashers/latest/user-guide.html
+
+session edit
+https://github.com/funcool/buddy-auth/blob/master/examples/session/src/authexample/web.clj
+
+cookie store
+https://github.com/pedestal/pedestal/blob/master/samples/ring-middleware/src/ring_middleware/service.clj
 
 ## Installation
 
