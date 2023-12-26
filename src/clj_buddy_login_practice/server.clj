@@ -6,7 +6,7 @@
             [io.pedestal.interceptor.chain :as interceptor.chain]
             [io.pedestal.interceptor.error :refer [error-dispatch]]
             [clj-time.core :as time]
-            [hiccup.page :refer [html5]]
+            #_[hiccup.page :refer [html5]]
             [buddy.sign.jwt :as jwt]
             [buddy.auth.backends :as backends]
             [buddy.auth :refer [authenticated? throw-unauthorized]]
@@ -46,14 +46,14 @@
 
                   :else (assoc ctx ::interceptor.chain/error ex)))
 
-(defn hello-world [request]
-  (let [name (get-in request [:params :name] "World")]
-    {:status 200 :body (str "Hello " name "!\n")}))
+#_(defn hello-world [request]
+    (let [name (get-in request [:params :name] "World")]
+      {:status 200 :body (str "Hello " name "!\n")}))
 
 (defn ok [d] {:status 200 :body d})
 (defn bad-request [d] {:status 400 :body d})
 
-(defn home
+(defn home-api
   [request]
   (if-not (authenticated? request)
     #_(throw-unauthorized)
@@ -74,63 +74,74 @@
                     :exp (time/plus (time/now) (time/seconds 3600))}
             token (jwt/sign claims secret {:alg :hs512})]
         (ok token))
-      (bad-request {:message "wrong auth data" :pass password :use username :req request}))))
+      (bad-request {:message "wrong auth data"
+                    ;; :req request ;; for debug
+                    :username username}))))
 
 (def interceptors-common [(body-params)
                           interceptor-authentication
                           (interceptor-authorization backend-auth)])
 
-(defn render-login-form [& {:keys [username]}]
-  (html5
-   [:form {:action "/login" :method :post}
-    [:label {:for "name"} "username"] [:br]
-    [:input {:type "text" :id "username" :name "username" :data username}] [:br]
-    [:label {:for "password"} "password"] [:br]
-    [:input {:type "password" :id "password" :name "password"}] [:br]
-    [:input {:type "submit"}]]))
+#_(defn render-login-form [& {:keys [username]}]
+    (html5
+     [:form {:action "/login" :method :post}
+      [:label {:for "name"} "username"] [:br]
+      [:input {:type "text" :id "username" :name "username" :data username}] [:br]
+      [:label {:for "password"} "password"] [:br]
+      [:input {:type "password" :id "password" :name "password"}] [:br]
+      [:input {:type "submit"}]]))
 
-(defn handler-page-login
-  [request]
-  (ok (render-login-form)))
+#_(defn handler-page-login
+    [request]
+    (ok (render-login-form)))
 
-(defn handler-page-login-post
-  [request]
-  (let [username (get-in request [:form-params :username])
-        password (get-in request [:form-params :password])
-        valid? (some-> authdata
-                       (get (keyword username))
-                       (= password))]
-    (if valid?
-      (ok "loggedin")
-      (ok (str (render-login-form) request)))))
+#_(defn handler-page-login-post
+    [request]
+    (let [username (get-in request [:form-params :username])
+          password (get-in request [:form-params :password])
+          valid? (some-> authdata
+                         (get (keyword username))
+                         (= password))]
+      (if valid?
+        (ok "loggedin")
+        (ok (str (render-login-form) request)))))
 
 (defn handler-page-check
   [request]
   (ok "hoihoi"))
 
 (def routes
-  #{["/"
-     :get (conj interceptors-common home) :route-name :home]
-    #_["/login" :post (conj interceptors-common login) :route-name :login]
-    ["/login"
-     :get [(body-params) html-body handler-page-login]
+  #{#_["/login" :post (conj interceptors-common login) :route-name :login]
+    #_["/login"
+       :get [(body-params) html-body handler-page-login]
      ;:post [(body-params) handler-page-login-post]
-     :route-name :login]
-    ["/login"
-     :post [(body-params) html-body handler-page-login-post]
-     :route-name :login-post]
+       :route-name :login]
+    #_["/login"
+       :post [(body-params) html-body handler-page-login-post]
+       :route-name :login-post]
     ["/login-api"
      :post [(body-params) login-api]
      :route-name :login-api]
-    ["/check-without-interceptors" :get [(body-params) handler-page-check] :route-name :check-without-interceptors]
-    ["/greet" :get hello-world :route-name :greet]
-    ["/admin/greet"
-     :get [(body-params)
-           html-body
-           interceptor-authentication
-           (interceptor-authorization backend-auth)
-           hello-world]
-     :route-name :admin-greet]})
+    ["/home-api-with-interceptors"
+     :get (conj interceptors-common home-api)
+     :route-name :home]
+    ["/home-api-without-interceptors"
+     :get [(body-params) home-api]
+     :route-name :home-api-without-interceptors]
+    ["/home-api-with-interceptor-authentication"
+     :get [(body-params) interceptor-authentication home-api]
+     :route-name :home-api-with-interceptor-authentication]
+    ["/home-api-with-interceptor-authorization"
+     :get [(body-params) (interceptor-authorization backend-auth) home-api]
+     :route-name :home-api-with-interceptor-authorization]
+    #_["/greet" :get hello-world :route-name :greet]
+    #_["/admin/greet"
+       :get [(body-params)
+             html-body
+             interceptor-authentication
+             (interceptor-authorization backend-auth)
+             hello-world]
+       :route-name :admin-greet]})
 
 (def service {:env                 :prod
               ::http/routes        routes

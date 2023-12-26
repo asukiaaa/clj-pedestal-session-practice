@@ -17,7 +17,8 @@ https://qiita.com/totakke/items/30c0582ad9cdd6a34cba
 
 ```
 # curl -v -X POST -H "Content-Type: application/json" -d '{"username": "admin", "password": "admin-secret"}' http://localhost:8080/login
-TOKEN=$(curl -v -X POST -H "Content-Type: application/json" -d '{"username": "admin", "password": "admin-secret"}' http://localhost:8080/login)
+TOKEN=$(curl -v -X POST -H "Content-Type: application/json" -d '{"username": "admin", "password": "a-secret"}' http://localhost:8080/login-api)
+echo $TOKEN
 ```
 ```
 # TOKEN="eyJhbGciOiJIUzUxMiJ9.eyJ1c2VyIjoiYWRtaW4iLCJleHAiOjE3MDMzMTM4OTh9.trPy86Cw3UqYb5goU_f2NEXYX8r8hPyQHHGetwyKpYqy8AO-RUYu_d1nJ9EJs3G64oVRQ8xXtaJ_YAzLcp3auA"
@@ -31,6 +32,18 @@ https://github.com/funcool/buddy-auth/blob/master/examples/session/src/authexamp
 
 cookie store
 https://github.com/pedestal/pedestal/blob/master/samples/ring-middleware/src/ring_middleware/service.clj
+
+
+```
+curl -X GET -H "Content-Type: application/json" -H "Authorization: Token $TOKEN" http://localhost:8080/home-api-with-interceptor-authorization
+{:message "unauthorized"}
+curl -X GET -H "Content-Type: application/json" -H "Authorization: Token $TOKEN" http://localhost:8080/home-api-with-interceptor-authentication
+{:status "Logged", :message "hello logged user {:user \"admin\", :exp 1703430242}"}
+curl -X GET -H "Content-Type: application/json" -H "Authorization: Token $TOKEN" http://localhost:8080/home-api-without-interceptors
+{:message "unauthorized"}
+curl -X GET -H "Content-Type: application/json" -H "Authorization: Token $TOKEN" http://localhost:8080/home-api-with-interceptors
+{:status "Logged", :message "hello logged user {:user \"admin\", :exp 1703430242}"}
+```
 
 ## Installation
 
