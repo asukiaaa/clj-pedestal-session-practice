@@ -62,10 +62,6 @@ post for login page
 curl -v -X POST -d "username=admin&password=a-secret" http://localhost:8080/login
 ```
 
-## Installation
-
-Download from https://github.com/clj-buddy-login-practice/server
-
 ## Usage
 
 FIXME: explanation
@@ -80,7 +76,7 @@ Run the project, overriding the name to be greeted:
     $ clojure -X:run-x :name '"Someone"'
     Hello, Someone!
 
-Run the project directly, via `:main-opts` (`-m clj-buddy-login-practice.server`):
+Run the project directly, via `:main-opts` (`-m clj-pedestal-session-practice.server`):
 
     $ clojure -M:run-m
     Hello, World!

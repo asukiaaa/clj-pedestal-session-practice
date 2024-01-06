@@ -3,9 +3,9 @@
   (:require [clojure.tools.deps :as t]
             [clojure.tools.build.api :as b]))
 
-(def lib 'net.clojars.clj-buddy-login-practice/server)
+(def lib 'net.clojars.clj-pedestal-session-practice/server)
 (def version "0.1.0-SNAPSHOT")
-(def main 'clj-buddy-login-practice.server)
+(def main 'clj-pedestal-session-practice.server)
 (def class-dir "target/classes")
 
 (defn test "Run all the tests." [opts]

@@ -1,4 +1,4 @@
-(ns clj-buddy-login-practice.server
+(ns clj-pedestal-session-practice.server
   (:gen-class)
   (:require [io.pedestal.http :as http :refer [html-body]]
             [io.pedestal.http.route :as route :refer [url-for]]
@@ -15,22 +15,27 @@
   [_request]
   (-> (redirect (url-for :home-page-with-interceptors))
       (assoc :cookies {:some "data-in-cookie"})
-      (assoc-in [:session :some] "data-in-session")))
+      (assoc-in [:session :some] {:value "data-in-session"})))
 
 (defn handler-page-inject-without-redirect [_request]
   {:status 200
-   :cookies {:some "data-in-cookie-without-redirect"}
+   :cookies {:some {:value "data-in-cookie-without-redirect" :http-only true}}
    :session {:some "data-in-session-without-redirect"}
    :body (html5
-          [:p "injected"])})
+          [:p "injected"]
+          [:a {:href (url-for :home-page-with-interceptors)} "home"])})
 
 (defn handler-page-check
   [request]
   {:status 200
    :body (html5
+          [:a {:href (url-for :home-page-with-interceptors)} "home"] [:br]
+          [:a {:href (url-for :home-page-without-interceptor)} "home-without-interceptor"] [:br]
+          [:a {:href (url-for :inject)} "inject"] [:br]
+          [:a {:href (url-for :inject-without-redirect)} "inject-without-redirect"] [:br]
+          [:a {:href (url-for :clear)} "clear"] [:br]
+          [:a {:href (url-for :clear-without-redirect)} "clear-withtout-redirect"] [:br]
           [:p "check page"]
-          [:p "request"]
-          [:p (str request)]
           [:p "cookies"]
           [:p (str (:cookies request))]
           [:p "session"]
@@ -41,34 +46,37 @@
       (assoc :cookies {:some {:max-age 0}})
       (assoc :session nil)))
 
-(defn handler-clear-without-redirect [_request]
+(defn handler-page-clear-without-redirect [_request]
   {:status 200
    :session nil
    :cookies {:some {:max-age 0}}
-   :body (html5 [:p "clear-without-redirect"])})
+   :body (html5
+          [:p "clear-without-redirect"]
+          [:a {:href (url-for :home-page-with-interceptors)} "home"])})
 
 (def interceptor-session (middlewares/session {:store (cookie/cookie-store)}))
 (def interceptors-common [(body-params)
+                          html-body
                           interceptor-session])
 
 (def routes
-  #{["/inject"
-     :get (conj interceptors-common handler-redirect-with-injecting-data)
-     :route-name :login]
-    ["/inject-without-redirect"
-     :get (conj interceptors-common html-body handler-page-inject-without-redirect)
-     :route-name :inject-without-redirect]
-    ["/home-with-interceptors"
-     :get (conj interceptors-common html-body handler-page-check)
+  #{["/"
+     :get (conj interceptors-common handler-page-check)
      :route-name :home-page-with-interceptors]
     ["/home-without-interceptor"
      :get [html-body handler-page-check]
      :route-name :home-page-without-interceptor]
+    ["/inject"
+     :get (conj interceptors-common handler-redirect-with-injecting-data)
+     :route-name :inject]
+    ["/inject-without-redirect"
+     :get (conj interceptors-common handler-page-inject-without-redirect)
+     :route-name :inject-without-redirect]
     ["/clear"
-     :get [interceptor-session handler-redirect-with-clear]
+     :get (conj interceptors-common handler-redirect-with-clear)
      :route-name :clear]
     ["/clear-without-redirect"
-     :get [html-body interceptor-session handler-clear-without-redirect]
+     :get (conj interceptors-common handler-page-clear-without-redirect)
      :route-name :clear-without-redirect]})
 
 (defn routes-watched []
@@ -84,8 +92,7 @@
 
 (defonce runnable-service (http/create-server service))
 
-(defn run-dev
-  "The entry-point for 'lein run-dev'"
+(defn -run-dev
   [& _args]
   (println "\nCreating your [DEV] server...")
   (-> service ;; start with production configuration
@@ -105,7 +112,6 @@
       http/start))
 
 (defn -main
-  "The entry-point for 'lein run'"
   [& _args]
   (println "\nCreating your server...")
   (http/start runnable-service))

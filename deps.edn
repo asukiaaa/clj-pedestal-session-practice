@@ -1,15 +1,13 @@
 {:paths ["src" "resources"]
  :deps {org.clojure/clojure {:mvn/version "1.11.1"}
-        buddy/buddy-auth {:mvn/version "3.0.1"}
         io.pedestal/pedestal.service {:mvn/version "0.6.2"}
         io.pedestal/pedestal.jetty {:mvn/version "0.6.2"}
         hiccup/hiccup {:mvn/version "1.0.5"}
-        clj-time/clj-time {:mvn/version "0.15.2"}
         ns-tracker/ns-tracker {:mvn/version "0.4.0"}}
  :aliases
- {:run-m {:main-opts ["-m" "clj-buddy-login-practice.server"]}
-  :run-dev {:ns-default clj-buddy-login-practice.server
-            :exec-fn run-dev
+ {:run-m {:main-opts ["-m" "clj-pedestal-session-practice.server"]}
+  :run-dev {:ns-default clj-pedestal-session-practice.server
+            :exec-fn -run-dev
             :exec-args {:name "Clojure"}}
   :build {:deps {io.github.clojure/tools.build {:mvn/version "0.9.4"}}
           :ns-default build}
