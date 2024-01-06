@@ -15,7 +15,11 @@
             [buddy.sign.jwt :as jwt]
             [buddy.auth.backends :as backends]
             [buddy.auth :refer [authenticated? throw-unauthorized]]
-            [buddy.auth.middleware :as auth.middleware]))
+            [buddy.auth.middleware :as auth.middleware]
+            [ns-tracker.core :refer [ns-tracker]]
+            [io.pedestal.http.route :as route]))
+
+(def watched-namespaces (ns-tracker "src"))
 
 #_(def secret (nonce/random-bytes 32))
 (def secret "test-secret")
@@ -227,6 +231,11 @@
              hello-world]
        :route-name :admin-greet]})
 
+(defn routes-watched []
+  (doseq [ns-sym (watched-namespaces)]
+    (require ns-sym :reload))
+  (route/expand-routes routes))
+
 (def service {:env                 :prod
               ::http/routes        routes
               ::http/resource-path "/public"
@@ -241,6 +250,7 @@
   (println "\nCreating your [DEV] server...")
   (-> service ;; start with production configuration
       (merge {:env :dev
+              ::http/routes routes-watched
               ;; do not block thread that starts web server
               ::http/join? false
               ;; Routes can be a function that resolve routes,
