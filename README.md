@@ -34,6 +34,7 @@ cookie store
 https://github.com/pedestal/pedestal/blob/master/samples/ring-middleware/src/ring_middleware/service.clj
 
 
+with token
 ```
 curl -X GET -H "Content-Type: application/json" -H "Authorization: Token $TOKEN" http://localhost:8080/home-api-with-interceptor-authorization
 {:message "unauthorized"}
@@ -43,6 +44,22 @@ curl -X GET -H "Content-Type: application/json" -H "Authorization: Token $TOKEN"
 {:message "unauthorized"}
 curl -X GET -H "Content-Type: application/json" -H "Authorization: Token $TOKEN" http://localhost:8080/home-api-with-interceptors
 {:status "Logged", :message "hello logged user {:user \"admin\", :exp 1703430242}"}
+```
+
+without token
+```
+curl -X GET http://localhost:8080/home-api-with-interceptor-authorization
+curl -X GET http://localhost:8080/home-api-with-interceptor-authentication
+curl -X GET http://localhost:8080/home-api-without-interceptors
+curl -X GET http://localhost:8080/home-api-with-interceptors
+
+all result
+{:message "unauthorized"}
+```
+
+post for login page
+```
+curl -v -X POST -d "username=admin&password=a-secret" http://localhost:8080/login
 ```
 
 ## Installation
