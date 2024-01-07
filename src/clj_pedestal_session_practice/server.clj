@@ -14,7 +14,7 @@
 (defn handler-redirect-with-injecting-data
   [_request]
   (-> (redirect (url-for :home-page-with-interceptors))
-      (assoc :cookies {:some "data-in-cookie"})
+      (assoc :cookies {:some {:value "data-in-cookie" :http-only true}})
       (assoc-in [:session :some] {:value "data-in-session"})))
 
 (defn handler-page-inject-without-redirect [_request]
